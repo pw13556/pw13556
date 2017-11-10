@@ -7,6 +7,9 @@ import pandas as pd
 import numpy as np
 import datetime
 from datetime import date , datetime , timedelta
+import os
+
+# Ithink last version
 
 # import and clean
 df = pd.read_excel(open('CIM.xlsx','rb'), sheetname='Report',index_col=14) # index_col=26
