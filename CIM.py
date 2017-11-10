@@ -9,7 +9,7 @@ import datetime
 from datetime import date , datetime , timedelta
 import os
 
-# Ithink last version
+# Ithink last version 2 2
 
 # import and clean
 df = pd.read_excel(open('CIM.xlsx','rb'), sheetname='Report',index_col=14) # index_col=26
