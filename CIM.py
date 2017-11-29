@@ -1,11 +1,11 @@
 # coding: utf-8
-from datetime import date, timedelta
+from datetime import datetime, timedelta
 import pandas as pd
 import csv
 import openpyxl
 
 # import and clean
-df = pd.read_excel(open('CIM.xlsx', 'rb'), sheetname='Report', index_col=14)  # index_col=26
+df = pd.read_excel(open('CIM.xlsx', 'rb'), sheet_name='Report', index_col=14)  # index_col=26
 df['Source'].replace(["Group Internal Audit Department (GIAD) audit findings",
                       "Management Self-Identified Control Issues (MSII), including routine RCSA & ShARP testing",
                       "Loss events' root cause analysis", 'Regulatory audit findings', 'Others',
@@ -55,7 +55,7 @@ for row in reader:
 df['Audit Issue No.'] = df['Issue ID'].map(d)
 
 # calc pass due
-today = date.today()
+today = datetime.today()
 df['PassD'] = df['Issue Resolution Date'] < today
 Passdue = {True: 'Over due', False: 'Not due'}
 df['Pass Due?'] = df['PassD'].map(Passdue)
