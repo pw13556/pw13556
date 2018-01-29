@@ -90,6 +90,6 @@ writer.save()
 
 # insert sumdis formula
 wb = openpyxl.load_workbook('PivotCIM.xlsx')
-sheet = wb.get_sheet_by_name('raw-data')
+sheet = wb['raw-data']
 sheet['F2'] = '=IF(COUNTIF(B2:$B$12410,B2)>1,0,1)'
 wb.save('PivotCIM.xlsx')
