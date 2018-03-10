@@ -3,9 +3,10 @@ from datetime import datetime, timedelta
 import pandas as pd
 import csv
 import openpyxl
+import xlsxwriter
 
 # import and clean
-df = pd.read_excel(open('CIM.xlsx', 'rb'), sheet_name='Report', index_col=14)  # index_col=26
+df = pd.read_excel(open('CIM.xlsx', 'rb'), sheet_name='CIMReport', index_col=14)  # index_col=26
 df['Source'].replace(["Group Internal Audit Department (GIAD) audit findings",
                       "Management Self-Identified Control Issues (MSII), including routine RCSA & ShARP testing",
                       "Loss events' root cause analysis", 'Regulatory audit findings', 'Others',
@@ -70,26 +71,45 @@ df['y.notificationdate'] = pd.DatetimeIndex(df['Notification Date']).year
 df['y.issueindentifiedate'] = pd.DatetimeIndex(df['Date Issue Identified']).year
 
 # pivoting
-df1 = pd.pivot_table(df, values='Issue ID', index='y.notificationdate', columns='Source',
+df1 = pd.pivot_table(df, values='Issue ID', index=['Issue Status', 'Pass Due?','Classification'],
                      aggfunc=pd.Series.nunique, )  # pd.Series.nunique
-df2 = pd.pivot_table(df, values='Issue ID', index='y.notificationdate', columns=['Pass Due?', 'Classification'],
+df2 = df1.xs(('Open'), level=0)
+df3 = pd.pivot_table(df, values='Issue ID', index=['Division', 'Organisation Level'], columns='Source',
                      aggfunc=pd.Series.nunique, )  # pd.Series.nunique
-df0 = pd.pivot_table(df, values='Issue ID', index=['Source', 'Issue Status', 'Pass Due?'], columns='Classification',
+df4 = pd.pivot_table(df, values='Issue ID', index=['Division', 'Organisation Level'], columns='Classification',
                      aggfunc=pd.Series.nunique, )  # pd.Series.nunique
-df3 = df0.xs(('MSII', 'Open'), level=0)
-df4 = pd.pivot_table(df, values='Issue ID', index='y.notificationdate', columns=['Pass Due?', 'Classification'],
-                     aggfunc=pd.Series.nunique, )  # pd.Series.nunique
+
+
+
+#df2 = pd.pivot_table(df, values='Issue ID', index='y.notificationdate', columns=['Pass Due?', 'Classification'],
+#                    aggfunc=pd.Series.nunique, )  # pd.Series.nunique
+#df0 = pd.pivot_table(df, values='Issue ID', index=['Source', 'Issue Status', 'Pass Due?'], columns='Classification',
+#                  aggfunc=pd.Series.nunique, )  # pd.Series.nunique
+#df3 = pd.pivot_table(df, values='Issue ID', index=['Issue Status', 'Pass Due?','Classification'],
+#                 aggfunc=pd.Series.nunique, )  # pd.Series.nunique
+#df4 = pd.pivot_table(df, values='Issue ID', index='y.notificationdate', columns=['Pass Due?', 'Classification'],
+#                 aggfunc=pd.Series.nunique, )  # pd.Series.nunique
 
 # export to excel
 writer = pd.ExcelWriter('PivotCIM.xlsx')
 df.to_excel(writer, 'raw-data')
-df1.to_excel(writer, 'Torch P13.1')
-df2.to_excel(writer, 'Torch P13.2')
-df3.to_excel(writer, 'OpsRisk - MSII Open')
+df2.to_excel(writer, 'ORC - open issue')
+df3.to_excel(writer, 'TORCH - P1')
+df4.to_excel(writer, 'TORCH - P2')
 writer.save()
 
 # insert sumdis formula
 wb = openpyxl.load_workbook('PivotCIM.xlsx')
 sheet = wb['raw-data']
 sheet['F2'] = '=IF(COUNTIF(B2:$B$12410,B2)>1,0,1)'
+
+
+
+
+
+
+
+
+
+
 wb.save('PivotCIM.xlsx')
