@@ -5,8 +5,8 @@ import csv
 import openpyxl
 import xlsxwriter
 
-# import and clean
-df = pd.read_excel(open('CIM.xlsx', 'rb'), sheet_name='CIMReport', index_col=14)  # index_col=26
+# import and clean # df = pd.read_excel(open('CIM.xlsx', 'rb'), sheet_name='CIMReport', index_col=14)  # index_col=26
+df = pd.read_excel(open('CIM.xlsx', 'rb'), sheet_name='Report', index_col=14)  # index_col=26
 df['Source'].replace(["Group Internal Audit Department (GIAD) audit findings",
                       "Management Self-Identified Control Issues (MSII), including routine RCSA & ShARP testing",
                       "Loss events' root cause analysis", 'Regulatory audit findings', 'Others',
@@ -19,7 +19,7 @@ df['Organisation Level'].replace(["CIMB THAI>Group Information and Operations Di
                                   "CIMB THAI>Group Information and Operations Division>Technology Division>IT Infrastructure Management Department>",
                                   "CIMB THAI>Group Information and Operations Division>Operations Division>",
                                   "CIMB THAI>Group Information and Operations Division>Operations Division>Credit Operation Department>",
-                                  "CIMB THAI>Group Information and Operations Division>Operations Division>Credit Administration Team>",
+                                  "CIMB THAI>Group Information and Operations Division>Operations Division>Credit Operation Department>Credit Administration Team>",
                                   "CIMB THAI>Group Information and Operations Division>Technology Division>Programme Delivery Department>",
                                   "CIMB THAI>Group Information and Operations Division>Operations Division>Capital Financial Markets & Payments Operation Department>",
                                   "CIMB THAI>Group Information and Operations Division>Technology Division>Application Management Department>",
