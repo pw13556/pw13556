@@ -91,35 +91,9 @@ df4 = pd.pivot_table(df , values='Issue ID' , index=['Division' , 'Organisation 
 #                 aggfunc=pd.Series.nunique, )  # pd.Series.nunique
 
 # export to excel
-writer = pd.ExcelWriter('PivotCIM1.xlsx')
-df.to_excel(writer , 'raw-data')
-df2.to_excel(writer , 'ORC - open issue')
-df3.to_excel(writer , 'TORCH - P1')
-df4.to_excel(writer , 'TORCH - P2')
-writer.save()
-
-# insert sumdis formula
-wb = openpyxl.load_workbook('PivotCIM1.xlsx')
-sheet = wb['raw-data']
-sheet['F2'] = '=IF(COUNTIF(B2:$B$12410,B2)>1,0,1)'
-
-# Loop sumdis formula
-for row , cellObj in enumerate(list(sheet.columns)[5]):
-	n = '=IF(COUNTIF(B%d:$B$12410,B%d)>1,0,1)' % (row + 1 , row + 1)
-	cellObj.value = n
-
-sheet['F1'] = 'Sumdis'
-
-wb.save('PivotCIM.xlsx')
-###############################################################################################################
-dff = pd.read_excel(open('PivotCIM1.xlsx' , 'rb') , sheet_name='raw-data' , index_col=5)
-dff1 = pd.pivot_table(dff, values='Issue ID', index=['Issue Status', 'Pass Due?', 'Classification'],aggfunc=pd.Series.nunique, )
-# export to excel
 writer = pd.ExcelWriter('PivotCIM.xlsx')
 df.to_excel(writer , 'raw-data')
-dff1.to_excel(writer , 'aa')
-
-
+writer.save()
 
 # insert sumdis formula
 wb = openpyxl.load_workbook('PivotCIM.xlsx')
@@ -133,4 +107,11 @@ for row , cellObj in enumerate(list(sheet.columns)[5]):
 
 sheet['F1'] = 'Sumdis'
 
+wb.save('PivotCIM.xlsx')
 writer.save()
+
+# dataframe new , close in month
+
+dfnc1 = pd.pivot_table(df, values='Issue ID', index=['Issue Status','Notification Date',  'Division','Organisation Level','Source','Classification','Issue Name','Issue Resolution Date'],aggfunc=pd.Series.nunique, )
+dfnc = dfnc1.xs(('Open') , level=0)
+print(dfnc)
