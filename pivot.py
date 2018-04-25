@@ -1,46 +1,69 @@
-"""
-Sample report generation script from pbpython.com
-
-This program takes an input Excel file, reads it and turns it into a
-pivot table.
-
-The output is saved in multiple tabs in a new Excel file.
-"""
-
-import argparse
+import win32com.client
+import openpyxl
 import pandas as pd
-import numpy as np
+
+df = pd.read_excel(open('PivotCIM.xlsx', 'rb'), sheet_name='Report' , index_col=14)  # index_col=26
 
 
-def create_pivot(infile, index_list=["Manager", "Rep", "Product"],
-                 value_list=["Price", "Quantity"]):
-    """
-    Read in the Excel file, create a pivot table and return it as a DataFrame
-    """
-    df = pd.read_excel(infile)
-    table = pd.pivot_table(df, index=index_list,
-                           values=value_list,
-                           aggfunc=[np.sum, np.mean], fill_value=0)
-    return table
+wb = openpyxl.load_workbook('PivotCIM.xlsx')
+sheet = wb['raw-data']
 
 
-def save_report(report, outfile):
-    """
-    Take a report and save it to a single Excel file
-    """
-    writer = pd.ExcelWriter(outfile)
-    for manager in report.index.get_level_values(0).unique():
-        temp_df = report.xs(manager, level=0)
-        temp_df.to_excel(writer, manager)
-    writer.save()
+Excel = win32com.client.gencache.EnsureDispatch('Excel.Application') # Excel = win32com.client.Dispatch('Excel.Application')
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Script to generate sales report')
-    parser.add_argument('infile', type=argparse.FileType('r'),
-                        help="report source file in Excel")
-    parser.add_argument('outfile', type=argparse.FileType('w'),
-                        help="output file in Excel")
-    args = parser.parse_args()
-    # We need to pass the full file name instead of the file object
-    sales_report = create_pivot(args.infile.name)
-    save_report(sales_report, args.outfile.name)
+win32c = win32com.client.constants
+
+wb = Excel.Workbooks.Add()
+Sheet1 = wb.Worksheets("Sheet1")
+
+TestData = [['Country','Name','Gender','Sign','Amount'],
+             ['CH','Max' ,'M','Plus',123.4567],
+             ['CH','Max' ,'M','Minus',-23.4567],
+             ['CH','Max' ,'M','Plus',12.2314],
+             ['CH','Max' ,'M','Minus',-2.2314],
+             ['CH','Sam' ,'M','Plus',453.7685],
+             ['CH','Sam' ,'M','Minus',-53.7685],
+             ['CH','Sara','F','Plus',777.666],
+             ['CH','Sara','F','Minus',-77.666],
+             ['DE','Hans','M','Plus',345.088],
+             ['DE','Hans','M','Minus',-45.088],
+             ['DE','Paul','M','Plus',222.455],
+             ['DE','Paul','M','Minus',-22.455]]
+
+for i, TestDataRow in enumerate(TestData):
+    for j, TestDataItem in enumerate(TestDataRow):
+        Sheet1.Cells(i+2,j+4).Value = TestDataItem
+
+cl1 = Sheet1.Cells(2,4)
+cl2 = Sheet1.Cells(2+len(TestData)-1,4+len(TestData[0])-1)
+PivotSourceRange = Sheet1.Range(cl1,cl2)
+
+PivotSourceRange.Select()
+
+Sheet2 = wb.Worksheets(2)
+cl3=Sheet2.Cells(4,1)
+PivotTargetRange=  Sheet2.Range(cl3,cl3)
+PivotTableName = 'ReportPivotTable'
+
+PivotCache = wb.PivotCaches().Create(SourceType=win32c.xlDatabase, SourceData=PivotSourceRange, Version=win32c.xlPivotTableVersion14)
+
+PivotTable = PivotCache.CreatePivotTable(TableDestination=PivotTargetRange, TableName=PivotTableName, DefaultVersion=win32c.xlPivotTableVersion14)
+
+PivotTable.PivotFields('Name').Orientation = win32c.xlRowField
+PivotTable.PivotFields('Name').Position = 1
+PivotTable.PivotFields('Gender').Orientation = win32c.xlPageField
+PivotTable.PivotFields('Gender').Position = 1
+PivotTable.PivotFields('Gender').CurrentPage = 'M'
+PivotTable.PivotFields('Country').Orientation = win32c.xlColumnField
+PivotTable.PivotFields('Country').Position = 1
+PivotTable.PivotFields('Country').Subtotals = [False, False, False, False, False, False, False, False, False, False, False, False]
+PivotTable.PivotFields('Sign').Orientation = win32c.xlColumnField
+PivotTable.PivotFields('Sign').Position = 2
+
+DataField = PivotTable.AddDataField(PivotTable.PivotFields('Amount'))
+DataField.NumberFormat = '#\'##0.00'
+
+Excel.Visible = 1
+
+wb.SaveAs('ranges_and_offsets.xlsx')
+Excel.Application.Quit()
