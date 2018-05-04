@@ -6,33 +6,33 @@ df = pd.read_excel(open('PivotCIM.xlsx', 'rb'), sheet_name='Report' , index_col=
 
 
 wb = openpyxl.load_workbook('PivotCIM.xlsx')
-sheet = wb['raw-data']
+sheetraw = wb['raw-data']
+sheetpivot1 = wb['pivot1']
+sheetpivot2 = wb['pivot2']
+sheetpivot3 = wb['pivot3']
 
 
 Excel = win32com.client.gencache.EnsureDispatch('Excel.Application') # Excel = win32com.client.Dispatch('Excel.Application')
 
 win32c = win32com.client.constants
 
-wb = Excel.Workbooks.Add()
-Sheet1 = wb.Worksheets("Sheet1")
+#TestData = [['Country','Name','Gender','Sign','Amount'],
+#             ['CH','Max' ,'M','Plus',123.4567],
+#             ['CH','Max' ,'M','Minus',-23.4567],
+#             ['CH','Max' ,'M','Plus',12.2314],
+#             ['CH','Max' ,'M','Minus',-2.2314],
+#             ['CH','Sam' ,'M','Plus',453.7685],
+#             ['CH','Sam' ,'M','Minus',-53.7685],
+#             ['CH','Sara','F','Plus',777.666],
+#             ['CH','Sara','F','Minus',-77.666],
+#             ['DE','Hans','M','Plus',345.088],
+#             ['DE','Hans','M','Minus',-45.088],
+#             ['DE','Paul','M','Plus',222.455],
+#             ['DE','Paul','M','Minus',-22.455]]
 
-TestData = [['Country','Name','Gender','Sign','Amount'],
-             ['CH','Max' ,'M','Plus',123.4567],
-             ['CH','Max' ,'M','Minus',-23.4567],
-             ['CH','Max' ,'M','Plus',12.2314],
-             ['CH','Max' ,'M','Minus',-2.2314],
-             ['CH','Sam' ,'M','Plus',453.7685],
-             ['CH','Sam' ,'M','Minus',-53.7685],
-             ['CH','Sara','F','Plus',777.666],
-             ['CH','Sara','F','Minus',-77.666],
-             ['DE','Hans','M','Plus',345.088],
-             ['DE','Hans','M','Minus',-45.088],
-             ['DE','Paul','M','Plus',222.455],
-             ['DE','Paul','M','Minus',-22.455]]
-
-for i, TestDataRow in enumerate(TestData):
-    for j, TestDataItem in enumerate(TestDataRow):
-        Sheet1.Cells(i+2,j+4).Value = TestDataItem
+for i, DataRow in enumerate(df):
+    for j, DataItem in enumerate(DataRow):
+        sheet.Cells(i+2,j+4).Value = DataItem
 
 cl1 = Sheet1.Cells(2,4)
 cl2 = Sheet1.Cells(2+len(TestData)-1,4+len(TestData[0])-1)

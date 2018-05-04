@@ -52,7 +52,7 @@ df.insert(4 , 'Sumdis' , 0)
 reader = csv.reader(open('MapIDAudit.csv' , 'r'))
 d = {}
 for row in reader:
-	k , v = row
+	k, v = row
 	d[k] = v
 
 df['Audit Issue No.'] = df['Issue ID'].map(d)
@@ -92,7 +92,11 @@ df4 = pd.pivot_table(df , values='Issue ID' , index=['Division' , 'Organisation 
 
 # export to excel
 writer = pd.ExcelWriter('PivotCIM.xlsx')
+pd.DataFrame({'Pivot1':[0]}).to_excel(writer, sheet_name='pivot1')
+pd.DataFrame({'Pivot2':[0]}).to_excel(writer, sheet_name='pivot2')
+pd.DataFrame({'Pivot3':[0]}).to_excel(writer, sheet_name='pivot3')
 df.to_excel(writer , 'raw-data')
+
 writer.save()
 
 # insert sumdis formula
@@ -106,7 +110,6 @@ for row , cellObj in enumerate(list(sheet.columns)[5]):
 	cellObj.value = n
 
 sheet['F1'] = 'Sumdis'
-
 wb.save('PivotCIM.xlsx')
 writer.save()
 
@@ -114,4 +117,3 @@ writer.save()
 
 dfnc1 = pd.pivot_table(df, values='Issue ID', index=['Issue Status','Notification Date',  'Division','Organisation Level','Source','Classification','Issue Name','Issue Resolution Date'],aggfunc=pd.Series.nunique, )
 dfnc = dfnc1.xs(('Open') , level=0)
-print(dfnc)
